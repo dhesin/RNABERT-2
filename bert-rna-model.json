@@ -16,6 +16,6 @@
   "pad_token_id": 3,
   "type_vocab_size": 2,
   "use_cache": true,
-  "vocab_size": 21,
+  "vocab_size": 8278,
   "num_labels": 30
 }

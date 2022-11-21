@@ -31,6 +31,7 @@ from typing import Optional
 from transformers import BertModel, BertConfig, BertTokenizer, BertTokenizerFast, BertForMaskedLM
 import datasets
 from datasets import load_dataset
+from custom_data_collator import RnaDataCollator
 
 import evaluate
 import transformers
@@ -137,7 +138,7 @@ class DataTrainingArguments:
     dataset_config_name: Optional[str] = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
-    train_file: Optional[str] = field(default='data/corrected_dataset_512_v1_pretrain.txt', metadata={"help": "The input training data file (a text file)."})
+    train_file: Optional[str] = field(default='data/corrected_k_mer_X.csv', metadata={"help": "The input training data file (a text file)."})
     validation_file: Optional[str] = field(
         default=None,
         metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
@@ -165,14 +166,14 @@ class DataTrainingArguments:
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
     mlm_probability: float = field(
-        default=0.30, metadata={"help": "Ratio of tokens to mask for masked language modeling loss"}
+        default=0.030, metadata={"help": "Ratio of tokens to mask for masked language modeling loss"}
     )
     line_by_line: bool = field(
         default=True,
         metadata={"help": "Whether distinct lines of text in the dataset are to be handled as distinct sequences."},
     )
     pad_to_max_length: bool = field(
-        default=False,
+        default=True,
         metadata={
             "help": (
                 "Whether to pad all samples to `max_seq_length`. "
@@ -232,8 +233,8 @@ def main():
     training_args.eval_steps=2500
     training_args.evaluation_strategy="steps"
     training_args.num_train_epochs = 100
-    training_args.per_device_train_batch_size = 64
-    training_args.per_device_eval_batch_size = 64
+    training_args.per_device_train_batch_size = 48
+    training_args.per_device_eval_batch_size = 48
     training_args.gradient_accumulation_steps = 1
     training_args.overwrite_output_dir = True
     #training_args.resume_from_checkpoint = True
@@ -241,7 +242,6 @@ def main():
     training_args.save_total_limit = 3
     training_args.log_level = 'info'
     training_args.logging_steps = 500
-    training_args.dataloader_num_workers = 10
 
     #print("TRAINING ARGS::::::::::::::::::\n",training_args)
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
@@ -398,7 +398,7 @@ def main():
             "pad_token": '[PAD]'
         }
         #tokenizer = PreTrainedTokenizerFast(cls_token='[CLS]', mask_token="[MASK]", tokenizer_file="bert-rna-tokenizer-1.json", pad_token='[PAD]')
-        tokenizer = PreTrainedTokenizerFast(tokenizer_file="bert-rna-tokenizer.json", mask_token="[MASK]", pad_token="[PAD]", cls_token='[CLS]', sep_token='[SEP]')
+        tokenizer = PreTrainedTokenizerFast(tokenizer_file="bert-rna-k-mer-tokenizer.json", mask_token="[MASK]", pad_token="[PAD]", cls_token='[CLS]', sep_token='[SEP]')
         #tokenizer.mask_token = '[MASK]'
         #tokenizer.pad_token = '[PAD]'
         print("**************MASK TOKEN:", tokenizer.mask_token)
@@ -574,7 +574,8 @@ def main():
     # Data collator
     # This one will take care of randomly masking the tokens.
     pad_to_multiple_of_8 = data_args.line_by_line and training_args.fp16 and not data_args.pad_to_max_length
-    data_collator = DataCollatorForLanguageModeling(
+    #data_collator = DataCollatorForLanguageModeling(
+    data_collator = RnaDataCollator(
         mlm=True,
         tokenizer=tokenizer,
         mlm_probability=data_args.mlm_probability,
@@ -596,6 +597,15 @@ def main():
         if training_args.do_eval and not is_torch_tpu_available()
         else None,
     )
+
+
+
+    for batch in trainer.get_train_dataloader():
+        print(batch['input_ids'][0])
+        print(batch['labels'][0])
+        break
+
+
 
     # Training
     if training_args.do_train:

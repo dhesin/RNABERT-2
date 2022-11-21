@@ -50,7 +50,7 @@ tokenized_seqs = raw_datasets.map(preprocess_function, batched=True)
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-model = AutoModelForSequenceClassification.from_pretrained("./out_mlm/checkpoint-4500", num_labels=30)
+model = AutoModelForSequenceClassification.from_pretrained("./out_mlm/checkpoint-135500", num_labels=30)
 
 training_args = TrainingArguments(
     output_dir="./results",
@@ -85,6 +85,11 @@ trainer = Trainer(
     compute_metrics=compute_metrics2,
     data_collator=data_collator,
 )
+
+for batch in trainer.get_train_dataloader():
+    print(batch)
+    break
+
 
 result = trainer.train()
 print(result)

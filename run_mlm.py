@@ -138,7 +138,7 @@ class DataTrainingArguments:
     dataset_config_name: Optional[str] = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
-    train_file: Optional[str] = field(default='data/corrected_k_mer_X.csv', metadata={"help": "The input training data file (a text file)."})
+    train_file: Optional[str] = field(default='data/pd_k_mer_pretrain.txt', metadata={"help": "The input training data file (a text file)."})
     validation_file: Optional[str] = field(
         default=None,
         metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
@@ -233,8 +233,8 @@ def main():
     training_args.eval_steps=2500
     training_args.evaluation_strategy="steps"
     training_args.num_train_epochs = 100
-    training_args.per_device_train_batch_size = 48
-    training_args.per_device_eval_batch_size = 48
+    training_args.per_device_train_batch_size = 30
+    training_args.per_device_eval_batch_size = 30
     training_args.gradient_accumulation_steps = 1
     training_args.overwrite_output_dir = True
     #training_args.resume_from_checkpoint = True

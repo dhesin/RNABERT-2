@@ -19,7 +19,7 @@ bert_tokenizer.post_processor = TemplateProcessing(
     special_tokens=[("[CLS]", 1), ("[SEP]", 2)],
 )
 trainer = WordLevelTrainer(special_tokens=["[PAD]", "[CLS]", "[SEP]","[UNK]", "[MASK]"])
-bert_tokenizer.train(["./data/corrected_k_mer_X.csv"], trainer)
+bert_tokenizer.train(["./data/pd_k_mer_pretrain.txt"], trainer)
 bert_tokenizer.save("./bert-rna-k-mer-tokenizer.json")
 
 

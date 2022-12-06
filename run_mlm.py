@@ -166,7 +166,7 @@ class DataTrainingArguments:
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
     mlm_probability: float = field(
-        default=0.030, metadata={"help": "Ratio of tokens to mask for masked language modeling loss"}
+        default=0.060, metadata={"help": "Ratio of tokens to mask for masked language modeling loss"}
     )
     line_by_line: bool = field(
         default=True,
@@ -233,15 +233,18 @@ def main():
     training_args.eval_steps=2500
     training_args.evaluation_strategy="steps"
     training_args.num_train_epochs = 100
-    training_args.per_device_train_batch_size = 30
-    training_args.per_device_eval_batch_size = 30
-    training_args.gradient_accumulation_steps = 1
+    training_args.per_device_train_batch_size = 50
+    training_args.per_device_eval_batch_size = 50
+    training_args.gradient_accumulation_steps = 2
     training_args.overwrite_output_dir = True
     #training_args.resume_from_checkpoint = True
     #training_args.model_name_or_path = '/home/desin/CS230/RNABERT/out_mlm/checkpoint-9500'
     training_args.save_total_limit = 3
     training_args.log_level = 'info'
     training_args.logging_steps = 500
+    training_args.learning_rate=8e-5
+    #training_args.save_strategy='steps'
+    #training_args.save_steps=10
 
     #print("TRAINING ARGS::::::::::::::::::\n",training_args)
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
@@ -398,7 +401,7 @@ def main():
             "pad_token": '[PAD]'
         }
         #tokenizer = PreTrainedTokenizerFast(cls_token='[CLS]', mask_token="[MASK]", tokenizer_file="bert-rna-tokenizer-1.json", pad_token='[PAD]')
-        tokenizer = PreTrainedTokenizerFast(tokenizer_file="bert-rna-k-mer-tokenizer.json", mask_token="[MASK]", pad_token="[PAD]", cls_token='[CLS]', sep_token='[SEP]')
+        tokenizer = PreTrainedTokenizerFast(tokenizer_file="bert-rna-6-mer-tokenizer.json", mask_token="[MASK]", pad_token="[PAD]", cls_token='[CLS]', sep_token='[SEP]')
         #tokenizer.mask_token = '[MASK]'
         #tokenizer.pad_token = '[PAD]'
         print("**************MASK TOKEN:", tokenizer.mask_token)
